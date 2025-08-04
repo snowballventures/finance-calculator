@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Finance Calculator Suite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .tab-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .tab-nav {
+            display: flex;
+            background: rgba(52, 73, 94, 0.1);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #34495e;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            min-height: 600px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .input-section, .result-section {
+            background: rgba(248, 249, 250, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: 600;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+        }
+
+        .result.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result.error {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th, .comparison-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .portfolio-allocation {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .allocation-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .tab-nav {
+                flex-wrap: wrap;
+            }
+            
+            .tab-button {
+                min-width: 50%;
+                flex: none;
+            }
+            
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Complete Finance Calculator Suite</h1>
+            <p>Your comprehensive toolkit for financial planning and analysis</p>
+        </div>
+
+        <div class="tab-container">
+            <div class="tab-nav">
+                <button class="tab-button active" onclick="openTab(event, 'compound')">Compound Interest</button>
+                <button class="tab-button" onclick="openTab(event, 'cagr')">CAGR Calculator</button>
+                <button class="tab-button" onclick="openTab(event, 'comparison')">Asset Comparison</button>
+                <button class="tab-button" onclick="openTab(event, 'portfolio')">Portfolio Rebalancer</button>
+            </div>
+
+            <!-- Compound Interest Tab -->
+            <div id="compound" class="tab-content active">
+                <div class="calculator-grid">
+                    <div class="input-section">
+                        <h3 style="margin-bottom: 20px; color: #2c3e50;">Compound Interest Calculator</h3>
+                        <div class="input-group">
+                            <label for="initialAmount">Initial Starting Money ($)</label>
+                            <input type="number" id="initialAmount" placeholder="e.g., 10000" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="monthlyAddition">Monthly Addition ($)</label>
+                            <input type="number" id="monthlyAddition" placeholder="e.g., 500" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="years">Number of Years</label>
+                            <input type="number" id="years" placeholder="e.g., 10" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label for="interestRate">Annual Interest Rate (%)</label>
+                            <input type="number" id="interestRate" placeholder="e.g., 7" step="0.01">
+                        </div>
+                        <button class="calculate-btn" onclick="calculateCompoundInterest()">Calculate Future Value</button>
+                    </div>
+                    <div class="result-section">
+                        <h3 style="margin-bottom: 20px; color: #2c3e50;">Results</h3>
+                        <div id="compoundResult" class="result"></div>
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(52, 73, 94, 0.1); border-radius: 8px; font-size: 0.9em; color: #34495e;">
+                            <strong>Formula:</strong> Calculates compound growth with monthly contributions using the future value of annuity formula.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CAGR Tab -->
+            <div id="cagr" class="tab-content">
+                <div class="calculator-grid">
+                    <div class="input-section">
+                        <h3 style="margin-bottom: 20px; color: #2c3e50;">CAGR Calculator</h3>
+                        <div class="input-group">
+                            <label for="startingCapital">Starting Capital ($)</label>
+                            <input type="number" id="startingCapital" placeholder="e.g., 10000" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="endingCapital">Ending Capital ($)</label>
+                            <input type="number" id="endingCapital" placeholder="e.g., 20000" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="cagrYears">Number of Years</label>
+                            <input type="number" id="cagrYears" placeholder="e.g., 5" step="0.1">
+                        </div>
+                        <button class="calculate-btn" onclick="calculateCAGR()">Calculate CAGR</button>
+                    </div>
+                    <div class="result-section">
+                        <h3 style="margin-bottom: 20px; color: #2c3e50;">Results</h3>
+                        <div id="cagrResult" class="result"></div>
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(52, 73, 94, 0.1); border-radius: 8px; font-size: 0.9em; color: #34495e;">
+                            <strong>Formula:</strong> CAGR = (Ending Value / Starting Value)^(1/Years) - 1
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Asset Comparison Tab -->
+            <div id="comparison" class="tab-content">
+                <h3 style="margin-bottom: 20px; color: #2c3e50; text-align: center;">Historical Asset Performance Comparison</h3>
+                <div style="margin-bottom: 20px; text-align: center;">
+                    <div class="input-group" style="display: inline-block; width: 200px; margin-right: 20px;">
+                        <label for="startYear">Start Year</label>
+                        <select id="startYear" onchange="updateComparison()">
+                            <option value="2014">2014</option>
+                            <option value="2015">2015</option>
+                            <option value="2016">2016</option>
+                            <option value="2017">2017</option>
+                            <option value="2018">2018</option>
+                            <option value="2019">2019</option>
+                            <option value="2020" selected>2020</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="display: inline-block; width: 200px;">
+                        <label for="endYear">End Year</label>
+                        <select id="endYear" onchange="updateComparison()">
+                            <option value="2020">2020</option>
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                            <option value="2024" selected>2024</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="comparisonResults">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading historical data...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Rebalancer Tab -->
+            <div id="portfolio" class="tab-content">
+                <h3 style="margin-bottom: 20px; color: #2c3e50; text-align: center;">Portfolio Rebalancing Calculator</h3>
+                <div class="calculator-grid">
+                    <div class="input-section">
+                        <h4 style="margin-bottom: 15px; color: #34495e;">Current Portfolio</h4>
+                        <div class="input-group">
+                            <label for="totalValue">Total Portfolio Value ($)</label>
+                            <input type="number" id="totalValue" placeholder="e.g., 100000" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="stocksValue">Current Stocks Value ($)</label>
+                            <input type="number" id="stocksValue" placeholder="e.g., 60000" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="bondsValue">Current Bonds Value ($)</label>
+                            <input type="number" id="bondsValue" placeholder="e.g., 30000" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="cashValue">Current Cash Value ($)</label>
+                            <input type="number" id="cashValue" placeholder="e.g., 10000" step="0.01">
+                        </div>
+                        
+                        <h4 style="margin: 20px 0 15px; color: #34495e;">Target Allocation (%)</h4>
+                        <div class="input-group">
+                            <label for="targetStocks">Target Stocks (%)</label>
+                            <input type="number" id="targetStocks" placeholder="e.g., 70" step="0.1" max="100">
+                        </div>
+                        <div class="input-group">
+                            <label for="targetBonds">Target Bonds (%)</label>
+                            <input type="number" id="targetBonds" placeholder="e.g., 25" step="0.1" max="100">
+                        </div>
+                        <div class="input-group">
+                            <label for="targetCash">Target Cash (%)</label>
+                            <input type="number" id="targetCash" placeholder="e.g., 5" step="0.1" max="100">
+                        </div>
+                        
+                        <button class="calculate-btn" onclick="calculateRebalancing()">Calculate Rebalancing</button>
+                    </div>
+                    <div class="result-section">
+                        <h4 style="margin-bottom: 15px; color: #34495e;">Rebalancing Analysis</h4>
+                        <div id="portfolioResult"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Historical data for asset comparison (simplified representative data)
+        const historicalData = {
+            SPY: {
+                2014: 13.7, 2015: 1.4, 2016: 11.9, 2017: 21.8, 2018: -4.4,
+                2019: 31.5, 2020: 18.4, 2021: 28.7, 2022: -18.1, 2023: 26.3, 2024: 24.2
+            },
+            Gold: {
+                2014: -1.5, 2015: -10.4, 2016: 8.5, 2017: 13.7, 2018: -1.2,
+                2019: 18.9, 2020: 25.1, 2021: -3.6, 2022: -0.3, 2023: 13.4, 2024: 27.0
+            },
+            Bitcoin: {
+                2014: -58.0, 2015: 35.7, 2016: 125.0, 2017: 1375.0, 2018: -72.6,
+                2019: 87.2, 2020: 300.0, 2021: 59.8, 2022: -64.2, 2023: 156.9, 2024: 120.8
+            },
+            TBills: {
+                2014: 0.1, 2015: 0.1, 2016: 0.3, 2017: 1.0, 2018: 1.8,
+                2019: 2.4, 2020: 0.4, 2021: 0.0, 2022: 1.5, 2023: 5.0, 2024: 5.4
+            }
+        };
+
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+            
+            // Load comparison data when that tab is opened
+            if (tabName === 'comparison') {
+                updateComparison();
+            }
+        }
+
+        function calculateCompoundInterest() {
+            const initial = parseFloat(document.getElementById('initialAmount').value);
+            const monthly = parseFloat(document.getElementById('monthlyAddition').value);
+            const years = parseFloat(document.getElementById('years').value);
+            const rate = parseFloat(document.getElementById('interestRate').value);
+            const resultDiv = document.getElementById('compoundResult');
+
+            if (isNaN(initial) || isNaN(monthly) || isNaN(years) || isNaN(rate)) {
+                showResult(resultDiv, 'Please fill in all fields with valid numbers', true);
+                return;
+            }
+
+            if (initial < 0 || monthly < 0 || years <= 0 || rate < 0) {
+                showResult(resultDiv, 'Please enter positive values', true);
+                return;
+            }
+
+            const monthlyRate = rate / 100 / 12;
+            const totalMonths = years * 12;
+            
+            const futureValueInitial = initial * Math.pow(1 + monthlyRate, totalMonths);
+            
+            let futureValueAnnuity = 0;
+            if (monthlyRate > 0) {
+                futureValueAnnuity = monthly * ((Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate);
+            } else {
+                futureValueAnnuity = monthly * totalMonths;
+            }
+            
+            const totalFutureValue = futureValueInitial + futureValueAnnuity;
+            const totalContributed = initial + (monthly * totalMonths);
+            const totalGain = totalFutureValue - totalContributed;
+
+            const resultText = `
+                <div style="text-align: left;">
+                    <div><strong>Future Value:</strong> $${totalFutureValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                    <div style="margin-top: 8px;"><strong>Total Contributed:</strong> $${totalContributed.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                    <div style="margin-top: 8px;"><strong>Total Gain:</strong> $${totalGain.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                </div>
+            `;
+
+            showResult(resultDiv, resultText, false);
+        }
+
+        function calculateCAGR() {
+            const starting = parseFloat(document.getElementById('startingCapital').value);
+            const ending = parseFloat(document.getElementById('endingCapital').value);
+            const years = parseFloat(document.getElementById('cagrYears').value);
+            const resultDiv = document.getElementById('cagrResult');
+
+            if (isNaN(starting) || isNaN(ending) || isNaN(years)) {
+                showResult(resultDiv, 'Please fill in all fields with valid numbers', true);
+                return;
+            }
+
+            if (starting <= 0 || ending <= 0 || years <= 0) {
+                showResult(resultDiv, 'Please enter positive values', true);
+                return;
+            }
+
+            const cagr = (Math.pow(ending / starting, 1 / years) - 1) * 100;
+            const totalReturn = ((ending - starting) / starting) * 100;
+
+            const resultText = `
+                <div style="text-align: left;">
+                    <div><strong>CAGR:</strong> ${cagr.toFixed(2)}% per year</div>
+                    <div style="margin-top: 8px;"><strong>Total Return:</strong> ${totalReturn.toFixed(2)}%</div>
+                </div>
+            `;
+
+            showResult(resultDiv, resultText, false);
+        }
+
+        function updateComparison() {
+            const startYear = parseInt(document.getElementById('startYear').value);
+            const endYear = parseInt(document.getElementById('endYear').value);
+            const resultsDiv = document.getElementById('comparisonResults');
+            
+            if (endYear <= startYear) {
+                resultsDiv.innerHTML = '<div style="text-align: center; color: #e74c3c; padding: 20px;">End year must be after start year</div>';
+                return;
+            }
+
+            // Calculate cumulative returns and CAGR for each asset
+            const assets = ['SPY', 'Gold', 'Bitcoin', 'TBills'];
+            const results = {};
+            
+            assets.forEach(asset => {
+                let cumulativeReturn = 1;
+                const years = [];
+                
+                for (let year = startYear; year <= endYear; year++) {
+                    const yearReturn = historicalData[asset][year] || 0;
+                    cumulativeReturn *= (1 + yearReturn / 100);
+                    years.push({
+                        year: year,
+                        return: yearReturn,
+                        cumulative: ((cumulativeReturn - 1) * 100).toFixed(1)
+                    });
+                }
+                
+                const totalYears = endYear - startYear;
+                const cagr = ((Math.pow(cumulativeReturn, 1/totalYears) - 1) * 100).toFixed(2);
+                const totalReturn = ((cumulativeReturn - 1) * 100).toFixed(1);
+                
+                results[asset] = {
+                    years: years,
+                    cagr: cagr,
+                    totalReturn: totalReturn,
+                    finalValue: (10000 * cumulativeReturn).toFixed(0)
+                };
+            });
+
+            // Create summary cards
+            let summaryHTML = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">';
+            
+            assets.forEach(asset => {
+                const data = results[asset];
+                const color = getAssetColor(asset);
+                summaryHTML += `
+                    <div class="metric-card" style="border-left: 5px solid ${color};">
+                        <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: ${color};">${asset}</div>
+                        <div class="metric-value" style="color: ${color};">${data.cagr}%</div>
+                        <div class="metric-label">CAGR</div>
+                        <div style="margin-top: 10px; font-size: 0.9em; color: #7f8c8d;">
+                            Total Return: ${data.totalReturn}%<br>
+                            $10K → $${parseInt(data.finalValue).toLocaleString()}
+                        </div>
+                    </div>
+                `;
+            });
+            summaryHTML += '</div>';
+
+            // Create year-by-year table
+            let tableHTML = `
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>SPY</th>
+                            <th>Gold</th>
+                            <th>Bitcoin</th>
+                            <th>T-Bills</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            for (let year = startYear; year <= endYear; year++) {
+                tableHTML += `<tr>
+                    <td style="font-weight: bold;">${year}</td>
+                    <td style="color: ${historicalData.SPY[year] >= 0 ? '#27ae60' : '#e74c3c'};">${historicalData.SPY[year]?.toFixed(1) || 'N/A'}%</td>
+                    <td style="color: ${historicalData.Gold[year] >= 0 ? '#27ae60' : '#e74c3c'};">${historicalData.Gold[year]?.toFixed(1) || 'N/A'}%</td>
+                    <td style="color: ${historicalData.Bitcoin[year] >= 0 ? '#27ae60' : '#e74c3c'};">${historicalData.Bitcoin[year]?.toFixed(1) || 'N/A'}%</td>
+                    <td style="color: ${historicalData.TBills[year] >= 0 ? '#27ae60' : '#e74c3c'};">${historicalData.TBills[year]?.toFixed(1) || 'N/A'}%</td>
+                </tr>`;
+            }
+
+            tableHTML += '</tbody></table>';
+            
+            resultsDiv.innerHTML = summaryHTML + tableHTML;
+        }
+
+        function getAssetColor(asset) {
+            const colors = {
+                'SPY': '#3498db',
+                'Gold': '#f39c12',
+                'Bitcoin': '#e67e22',
+                'TBills': '#95a5a6'
+            };
+            return colors[asset] || '#34495e';
+        }
+
+        function calculateRebalancing() {
+            const total = parseFloat(document.getElementById('totalValue').value);
+            const stocks = parseFloat(document.getElementById('stocksValue').value);
+            const bonds = parseFloat(document.getElementById('bondsValue').value);
+            const cash = parseFloat(document.getElementById('cashValue').value);
+            
+            const targetStocks = parseFloat(document.getElementById('targetStocks').value);
+            const targetBonds = parseFloat(document.getElementById('targetBonds').value);
+            const targetCash = parseFloat(document.getElementById('targetCash').value);
+            
+            const resultDiv = document.getElementById('portfolioResult');
+
+            // Validation
+            if (isNaN(total) || isNaN(stocks) || isNaN(bonds) || isNaN(cash) || 
+                isNaN(targetStocks) || isNaN(targetBonds) || isNaN(targetCash)) {
+                resultDiv.innerHTML = '<div style="color: #e74c3c; text-align: center; padding: 20px;">Please fill in all fields with valid numbers</div>';
+                return;
+            }
+
+            if (Math.abs(targetStocks + targetBonds + targetCash - 100) > 0.1) {
+                resultDiv.innerHTML = '<div style="color: #e74c3c; text-align: center; padding: 20px;">Target allocations must total 100%</div>';
+                return;
+            }
+
+            if (Math.abs(stocks + bonds + cash - total) > 0.01) {
+                resultDiv.innerHTML = '<div style="color: #e74c3c; text-align: center; padding: 20px;">Current asset values must equal total portfolio value</div>';
+                return;
+            }
+
+            // Calculate current allocations
+            const currentStocksPct = (stocks / total) * 100;
+            const currentBondsPct = (bonds / total) * 100;
+            const currentCashPct = (cash / total) * 100;
+
+            // Calculate target values
+            const targetStocksValue = (targetStocks / 100) * total;
+            const targetBondsValue = (targetBonds / 100) * total;
+            const targetCashValue = (targetCash / 100) * total;
+
+            // Calculate adjustments needed
+            const stocksAdjustment = targetStocksValue - stocks;
+            const bondsAdjustment = targetBondsValue - bonds;
+            const cashAdjustment = targetCashValue - cash;
+
+            let resultHTML = `
+                <div class="portfolio-allocation">
+                    <div class="allocation-item">
+                        <h5 style="color: #3498db; margin-bottom: 10px;">Stocks</h5>
+                        <div>Current: ${currentStocksPct.toFixed(1)}%</div>
+                        <div>Target: ${targetStocks}%</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${currentStocksPct}%; background: #3498db;"></div>
+                        </div>
+                        <div style="margin-top: 10px; font-weight: bold; color: ${stocksAdjustment >= 0 ? '#27ae60' : '#e74c3c'};">
+                            ${stocksAdjustment >= 0 ? 'Buy' : 'Sell'} ${Math.abs(stocksAdjustment).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})}
+                        </div>
+                    </div>
+                    
+                    <div class="allocation-item">
+                        <h5 style="color: #f39c12; margin-bottom: 10px;">Bonds</h5>
+                        <div>Current: ${currentBondsPct.toFixed(1)}%</div>
+                        <div>Target: ${targetBonds}%</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${currentBondsPct}%; background: #f39c12;"></div>
+                        </div>
+                        <div style="margin-top: 10px; font-weight: bold; color: ${bondsAdjustment >= 0 ? '#27ae60' : '#e74c3c'};">
+                            ${bondsAdjustment >= 0 ? 'Buy' : 'Sell'} ${Math.abs(bondsAdjustment).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})}
+                        </div>
+                    </div>
+                    
+                    <div class="allocation-item">
+                        <h5 style="color: #95a5a6; margin-bottom: 10px;">Cash</h5>
+                        <div>Current: ${currentCashPct.toFixed(1)}%</div>
+                        <div>Target: ${targetCash}%</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${currentCashPct}%; background: #95a5a6;"></div>
+                        </div>
+                        <div style="margin-top: 10px; font-weight: bold; color: ${cashAdjustment >= 0 ? '#27ae60' : '#e74c3c'};">
+                            ${cashAdjustment >= 0 ? 'Add' : 'Use'} ${Math.abs(cashAdjustment).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})}
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: rgba(52, 152, 219, 0.1); border-radius: 10px; border-left: 4px solid #3498db;">
+                    <h5 style="color: #2c3e50; margin-bottom: 10px;">Rebalancing Summary</h5>
+                    <div style="font-size: 0.9em; color: #34495e;">
+                        Total trades needed: ${(Math.abs(stocksAdjustment) + Math.abs(bondsAdjustment) + Math.abs(cashAdjustment)) / 2} 
+                        <br>
+                        ${Math.abs(stocksAdjustment) < 100 && Math.abs(bondsAdjustment) < 100 && Math.abs(cashAdjustment) < 100 ? 
+                          'Portfolio is well balanced!' : 'Consider rebalancing to optimize allocation.'}
+                    </div>
+                </div>
+            `;
+
+            resultDiv.innerHTML = resultHTML;
+        }
+
+        function showResult(resultDiv, text, isError) {
+            resultDiv.innerHTML = text;
+            resultDiv.className = 'result';
+            if (isError) {
+                resultDiv.classList.add('error');
+            }
+            
+            setTimeout(() => {
+                resultDiv.classList.add('show');
+            }, 10);
+        }
+
+        // Allow Enter key to trigger calculations
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                const compoundInputs = ['initialAmount', 'monthlyAddition', 'years', 'interestRate'];
+                const cagrInputs = ['startingCapital', 'endingCapital', 'cagrYears'];
+                const portfolioInputs = ['totalValue', 'stocksValue', 'bondsValue', 'cashValue', 'targetStocks', 'targetBonds', 'targetCash'];
+                
+                if (compoundInputs.includes(activeElement.id)) {
+                    calculateCompoundInterest();
+                } else if (cagrInputs.includes(activeElement.id)) {
+                    calculateCAGR();
+                } else if (portfolioInputs.includes(activeElement.id)) {
+                    calculateRebalancing();
+                }
+            }
+        });
+
+        // Initialize comparison data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(updateComparison, 500);
+        });
+    </script>
+</body>
+</html>
